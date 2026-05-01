@@ -1,0 +1,37 @@
+Package: sBNPi
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Authors@R: c(
+    person(
+        given   = "Francesco",
+        family  = "Barile",
+        email   = "francesco.barile@unimib.it",
+        role    =  c("aut", "cph"),
+        comment = c(ORCID = "0000-0001-9177-1780")),
+    person(
+        given   = "Giovanni",
+        family  = "Poli",
+        email   = "giovanni.poli@unifi.it",
+        role    = c("aut", "cre", "cph"),
+        comment = c(ORCID = "0000-0001-9949-0422")
+    ))
+Description: More about what it does (maybe more than one line).
+    Continuation lines should be indented.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+SystemRequirements: C++14
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo,
+    RcppDist
+Imports: 
+    Rcpp
+Depends:
+    R (>= 4.1.0)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
