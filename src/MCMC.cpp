@@ -176,11 +176,11 @@ Rcpp::List sBNPi( const arma::mat  & data,
     if (allocation_init.isNull()) {
       Rcpp::stop("Error: init = 'manual' requires non NULL allocation_init, you must provide it.");
     }
+    Z = Rcpp::as<arma::ivec>(allocation_init);
     if ((int) Z.n_elem != NN) {
       Rcpp::stop("Error: init_rho must have length equal to nrow(data).");
     }
     // TO DO: add controll for values in \{0, ..., L\}
-    Z = Rcpp::as<arma::ivec>(allocation_init);
   } else {
     Rcpp::stop("Invalid init. Use one of: 'random', 'cluster', 'singleton', 'manual'.");
   }
