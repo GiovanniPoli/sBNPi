@@ -43,7 +43,7 @@ gen_data_S1 = function(seed, alpha, alpha0) {
   n = 200; q = 6; J = 2; K = 3
   n_j = rep(n / J, J)
   n_k = c(50, 100, 50)
-  group    = rep(0:(J - 1), times = n_j)   # 0-based group / pattern
+  group    = rep(0:(J - 1),  times = n_j)  # 0-based group / pattern
   true_cls = rep(1:K,        times = n_k)  # 1-based cluster
 
   ## ---- NIW hyperparameters -------------------------------------------
@@ -55,8 +55,7 @@ gen_data_S1 = function(seed, alpha, alpha0) {
   c_mat = sBNPimp::rmvbern(n = K, p = rep(alpha0, q))                 # K x q
 
   # Joint draw of (mu_k, Sigma_k) for all clusters in a single call.
-  niw       = sBNPimp::rniw(n = K, ex = mu0, PsiInv = solve(Sigma0),
-                             kappa = kappa0, nu = nu0)
+  niw       = sBNPimp::rniw(n = K, ex = mu0, PsiInv = solve(Sigma0), kappa = kappa0, nu = nu0)
   mu_mat    = t(niw$mu)                                                # K x q
   Sigma_arr = niw$Sigma                                                # q x q x K
 
@@ -113,7 +112,7 @@ gen_data_S2 = function(seed, alpha, rho) {
   true_cls = rep(1:K, times = n_k)
 
   # Templates (S1 convention).
-  c_mat = rbind(rep(1, q),                       # cluster 1: never censored
+  c_mat = rbind(rep(1, q),                        # cluster 1: never censored
                  c(rep(0, 2), rep(1, q - 2)),     # cluster 2: first 2 censored
                  c(rep(1, 2), rep(0, q - 2)))     # cluster 3: last 4 censored
 
@@ -170,7 +169,7 @@ gen_data_S2 = function(seed, alpha, rho) {
 gen_data_S3 = function(CensProb, sd, seed) {
   set.seed(seed)
 
-  n = 200; q = 6; J = 2; K = 4
+  n = 200; q = 6; J = 2; K = 4 # K = 3, 4 is for code
   n_k = rep(50, K)
   group    = rep(0:(J - 1), each = n / J)
   true_cls = rep(1:K, times = n_k)
@@ -182,9 +181,9 @@ gen_data_S3 = function(CensProb, sd, seed) {
   S_neg = sd^2 * R_neg
 
   ## Atoms g00, g01, g10, g11
-  mu_mat = rbind(c( 3,  3,  3,  3,  3,  3),    # g00
-                  c(-3, -3, -3,  3,  3,  3),    # g01
-                  c(-3, -3, -3,  3,  3,  3),    # g10
+  mu_mat = rbind( c( 3,  3,  3,  3,  3,  3),    # g00
+                  c( 0,  0,  0,  0,  0,  0),    # g01
+                  c( 0,  0,  0,  0,  0,  0),    # g10
                   c(-3, -3, -3, -3, -3, -3))    # g11
 
   Sigma_arr = array(NA, c(q, q, K))
@@ -194,7 +193,7 @@ gen_data_S3 = function(CensProb, sd, seed) {
   Sigma_arr[, , 4] = S_neg
 
   # Templates (S1 convention: 1 = default observed, 0 = MAR-censored).
-  c_mat = rbind(c(0, 0, 0, 1, 1, 1),    # g00: missing only on first 3
+  c_mat = rbind( c(0, 0, 0, 1, 1, 1),    # g00: missing only on first 3
                  c(0, 0, 0, 0, 0, 0),    # g01: missing on all 6
                  c(0, 0, 0, 0, 0, 0),    # g10: missing on all 6
                  c(1, 1, 1, 0, 0, 0))    # g11: missing only on last 3
@@ -209,7 +208,7 @@ gen_data_S3 = function(CensProb, sd, seed) {
     p_c_k         = (1 - CensProb) * (c_mat[k, ] == 0) + 1 * (c_mat[k, ] == 1)
     RR_mat[I_k, ] = sBNPimp::rmvbern(n = length(I_k), p = p_c_k)
 
-    Y_mat_complete[I_k, ] = t(sBNPimp::rmvnorm(n     = length(I_k),
+    Y_mat_complete[I_k, ] = t(sBNPimp::rmvnorm( n     = length(I_k),
                                                 mu    = mu_mat[k, ],
                                                 sigma = Sigma_arr[, , k]))
   }
