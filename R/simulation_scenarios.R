@@ -9,10 +9,12 @@
 #' @return A \eqn{q \times q} symmetric positive-definite matrix.
 #' @export
 make_cov = function(sigma2, rho) {
-  q     = length(sigma2)
-  R     = matrix(rho, q, q); diag(R) = 1
-  Dhalf = diag(sqrt(sigma2))
-  Dhalf %*% R %*% Dhalf
+  q       = length(sigma2)
+  R       = matrix(rho, q, q)
+  diag(R) = 1
+  Dhalf   = diag(sqrt(sigma2))
+
+  return(Dhalf %*% R %*% Dhalf)
 }
 
 #' Simulate data — Scenario 1 (random clusters from the centering measure \eqn{G_0})
@@ -36,7 +38,7 @@ make_cov = function(sigma2, rho) {
 #'   observation indicators), \code{c_mat} (K x q), \code{Sigma_arr}
 #'   (q x q x K), \code{mu_mat} (K x q).
 #' @export
-gen_data_S1 = function(seed, alpha, alpha0) {
+gen_data_S1 = function(seed, alpha) {
   set.seed(seed)
 
   ## ---- design ---------------------------------------------------------
@@ -47,15 +49,19 @@ gen_data_S1 = function(seed, alpha, alpha0) {
   true_cls = rep(1:K,        times = n_k)  # 1-based cluster
 
   ## ---- NIW hyperparameters -------------------------------------------
-  mu0 = rep(0, q); kappa0 = 1; Sigma0 = diag(q); nu0 = q + 2
+  mu0 = rep(0, q);
+  kappa0 = 1;
+  Sigma0 = diag(q);
+  nu0 = q + 2
 
   ## ---- cluster-level draws -------------------------------------------
   # Bernoulli "templates": c_mat[k, j] = 1 means component j is part of the
   # default observed pattern of cluster k.
-  c_mat = sBNPimp::rmvbern(n = K, p = rep(alpha0, q))                 # K x q
+  alpha0 = 0.4
+  c_mat = sBNPi::rmvbern(n = K, p = rep(alpha0, q))                 # K x q
 
   # Joint draw of (mu_k, Sigma_k) for all clusters in a single call.
-  niw       = sBNPimp::rniw(n = K, ex = mu0, PsiInv = solve(Sigma0), kappa = kappa0, nu = nu0)
+  niw       = sBNPi::rniw(n = K, mean = mu0, Psi = Sigma0, kappa = kappa0, nu = nu0)
   mu_mat    = t(niw$mu)                                                # K x q
   Sigma_arr = niw$Sigma                                                # q x q x K
 
@@ -68,12 +74,12 @@ gen_data_S1 = function(seed, alpha, alpha0) {
 
     # P(observed): alpha where c = 0, (1 - alpha) where c = 1.
     p_c_k         = alpha * (c_mat[k, ] == 0) + (1 - alpha) * (c_mat[k, ] == 1)
-    RR_mat[I_k, ] = sBNPimp::rmvbern(n = length(I_k), p = p_c_k)
+    RR_mat[I_k, ] = sBNPi::rmvbern(n = length(I_k), p = p_c_k)
 
     # rmvnorm returns p x n_k; transpose to put subjects on rows.
-    Y_mat_complete[I_k, ] = t(sBNPimp::rmvnorm(n     = length(I_k),
-                                                mu    = mu_mat[k, ],
-                                                sigma = Sigma_arr[, , k]))
+    Y_mat_complete[I_k, ] = t(sBNPi::rmvnorm(n     = length(I_k),
+                                             mu    = mu_mat[k, ],
+                                             sigma = Sigma_arr[, , k]))
   }
 
   # Apply the missingness mask.
@@ -130,10 +136,10 @@ gen_data_S2 = function(seed, alpha, rho) {
     I_k = which(true_cls == k)
     # Same missingness logic as Scenario 1.
     p_c_k         = alpha * (c_mat[k, ] == 0) + (1 - alpha) * (c_mat[k, ] == 1)
-    RR_mat[I_k, ] = sBNPimp::rmvbern(n = length(I_k), p = p_c_k)
-    Y_mat_complete[I_k, ] = t(sBNPimp::rmvnorm(n     = length(I_k),
-                                                mu    = mu_mat[k, ],
-                                                sigma = Sigma_arr[, , k]))
+    RR_mat[I_k, ] = sBNPi::rmvbern(n = length(I_k), p = p_c_k)
+    Y_mat_complete[I_k, ] = t(sBNPi::rmvnorm(n     = length(I_k),
+                                             mu    = mu_mat[k, ],
+                                             sigma = Sigma_arr[, , k]))
   }
 
   Y_mat_obs              = Y_mat_complete
@@ -148,6 +154,7 @@ gen_data_S2 = function(seed, alpha, rho) {
        Sigma_arr  = Sigma_arr,
        mu_mat     = mu_mat)
 }
+# CHECKED UP TO HERE (1 & 2)
 
 #' Simulate data — Scenario 3 (fixed atoms, structured MAR)
 #'
