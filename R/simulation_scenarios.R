@@ -154,7 +154,6 @@ gen_data_S2 = function(seed, alpha, rho) {
        Sigma_arr  = Sigma_arr,
        mu_mat     = mu_mat)
 }
-# CHECKED UP TO HERE (1 & 2)
 
 #' Simulate data — Scenario 3 (fixed atoms, structured MAR)
 #'
@@ -176,7 +175,7 @@ gen_data_S2 = function(seed, alpha, rho) {
 gen_data_S3 = function(CensProb, sd, seed) {
   set.seed(seed)
 
-  n = 200; q = 6; J = 2; K = 4 # K = 3, 4 is for code
+  n = 200; q = 6; J = 2; K = 4
   n_k = rep(50, K)
   group    = rep(0:(J - 1), each = n / J)
   true_cls = rep(1:K, times = n_k)
@@ -188,10 +187,10 @@ gen_data_S3 = function(CensProb, sd, seed) {
   S_neg = sd^2 * R_neg
 
   ## Atoms g00, g01, g10, g11
-  mu_mat = rbind( c( 3,  3,  3,  3,  3,  3),    # g00
+  mu_mat = rbind( c(-3, -3, -3, -3, -3, -3),    # g00
                   c( 0,  0,  0,  0,  0,  0),    # g01
                   c( 0,  0,  0,  0,  0,  0),    # g10
-                  c(-3, -3, -3, -3, -3, -3))    # g11
+                  c( 3,  3,  3,  3,  3,  3))    # g11
 
   Sigma_arr = array(NA, c(q, q, K))
   Sigma_arr[, , 1] = S_neg
@@ -213,11 +212,11 @@ gen_data_S3 = function(CensProb, sd, seed) {
 
     # P(observed) = (1 - CensProb) where c = 0, exactly 1 where c = 1.
     p_c_k         = (1 - CensProb) * (c_mat[k, ] == 0) + 1 * (c_mat[k, ] == 1)
-    RR_mat[I_k, ] = sBNPimp::rmvbern(n = length(I_k), p = p_c_k)
+    RR_mat[I_k, ] = sBNPi::rmvbern(n = length(I_k), p = p_c_k)
 
-    Y_mat_complete[I_k, ] = t(sBNPimp::rmvnorm( n     = length(I_k),
-                                                mu    = mu_mat[k, ],
-                                                sigma = Sigma_arr[, , k]))
+    Y_mat_complete[I_k, ] = t(sBNPi::rmvnorm( n     = length(I_k),
+                                              mu    = mu_mat[k, ],
+                                              sigma = Sigma_arr[, , k]))
   }
 
   Y_mat_obs              = Y_mat_complete
@@ -275,10 +274,10 @@ gen_data_S4 = function(seed, CensProb, sd) {
   for (k in seq_len(K)) {
     I_k = which(true_cls == k)
     p_c_k = (1 - CensProb) * (c_mat[k, ] == 0) + 1 * (c_mat[k, ] == 1)
-    RR_mat[I_k, ] = sBNPimp::rmvbern(n = length(I_k), p = p_c_k)
-    Y_mat_complete[I_k, ] = t(sBNPimp::rmvnorm(n     = length(I_k),
-                                                mu    = mu_mat[k, ],
-                                                sigma = Sigma_arr[, , k]))
+    RR_mat[I_k, ] = sBNPi::rmvbern(n = length(I_k), p = p_c_k)
+    Y_mat_complete[I_k, ] = t(sBNPi::rmvnorm(n     = length(I_k),
+                                             mu    = mu_mat[k, ],
+                                             sigma = Sigma_arr[, , k]))
   }
 
   Y_mat_obs              = Y_mat_complete
