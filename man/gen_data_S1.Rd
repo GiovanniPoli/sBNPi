@@ -4,7 +4,7 @@
 \alias{gen_data_S1}
 \title{Simulate data — Scenario 1 (random clusters from the centering measure \eqn{G_0})}
 \usage{
-gen_data_S1(seed, alpha, alpha0)
+gen_data_S1(seed, alpha)
 }
 \arguments{
 \item{seed}{Integer random seed.}

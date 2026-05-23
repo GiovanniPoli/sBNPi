@@ -232,6 +232,83 @@ gen_data_S3 = function(CensProb, sd, seed) {
        mu_mat     = mu_mat)
 }
 
+#' Simulate data — Scenario 3 (fixed atoms, structured MAR)
+#'
+#' Four fixed atoms (K = 3, sizes 50/100/50) on two groups (J = 2). Cluster
+#' means and covariances are fixed; missingness depends on the cluster
+#' through a fixed template \code{c_mat}: each component with
+#' \eqn{c_{k,j} = 0} is independently missing with probability
+#' \code{CensProb}, components with \eqn{c_{k,j} = 1} are always observed.
+#' The reference pattern is \eqn{(0,0,0,1,1,1)^\top} for the first cluster,
+#' \eqn{(1,1,1,1,1,1)^\top} for the second (shared between groups), and \eqn{(1,1,1,0,0,0)^\top}
+#' for the third.
+#'
+#' @param CensProb Probability of missingness on the components that are
+#'   subject to censoring.
+#' @param sd Marginal standard deviation common to all components.
+#' @param seed Integer random seed.
+#' @return Same list structure as \code{\link{gen_data_S1}}.
+#' @export
+gen_data_S3_v2 = function(CensProb, sd, seed) {
+  set.seed(seed)
+
+  n = 200; q = 6; J = 2; K = 4
+  n_k = rep(50, K)
+  group    = rep(0:(J - 1), each = n / J)
+  true_cls = rep(1:K, times = n_k)
+
+  ## Two correlation structures shared across atoms.
+  R_pos = matrix(0.5,  q, q); diag(R_pos) = 1
+  R_neg = matrix(-1/7, q, q); diag(R_neg) = 1
+  S_pos = sd^2 * R_pos
+  S_neg = sd^2 * R_neg
+
+  ## Atoms g00, g01, g10, g11
+  mu_mat = rbind( c(-3, -3, 0, 0, 3, 3),         # g00
+                  c( 0,  0,  0,  0,  0,  0),     # g01
+                  c( 0,  0,  0,  0,  0,  0),     # g10
+                  c( 3,  3,  0,  0,  -3,  -3))   # g11
+
+  Sigma_arr = array(NA, c(q, q, K))
+  Sigma_arr[, , 1] = S_neg
+  Sigma_arr[, , 2] = S_pos
+  Sigma_arr[, , 3] = S_pos
+  Sigma_arr[, , 4] = S_neg
+
+  # Templates (S1 convention: 1 = default observed, 0 = MAR-censored).
+  c_mat = rbind( c(0, 0, 0, 0, 1, 1),    # g00: missing only on first 3
+                 c(0, 0, 1, 1, 0, 0),    # g01: missing on the central
+                 c(0, 0, 1, 1, 0, 0),    # g10: missing on the central
+                 c(1, 1, 0, 0, 0, 0))    # g11: missing only on last 3
+
+  Y_mat_complete = matrix(NA, n, q)
+  RR_mat         = matrix(NA, n, q)
+
+  for (k in seq_len(K)) {
+    I_k = which(true_cls == k)
+
+    # P(observed) = (1 - CensProb) where c = 0, exactly 1 where c = 1.
+    p_c_k         = (1 - CensProb) * (c_mat[k, ] == 0) + 1 * (c_mat[k, ] == 1)
+    RR_mat[I_k, ] = sBNPi::rmvbern(n = length(I_k), p = p_c_k)
+
+    Y_mat_complete[I_k, ] = t(sBNPi::rmvnorm( n     = length(I_k),
+                                              mu    = mu_mat[k, ],
+                                              sigma = Sigma_arr[, , k]))
+  }
+
+  Y_mat_obs              = Y_mat_complete
+  Y_mat_obs[RR_mat == 0] = NA
+
+  list(sim_pat    = group,
+       sim_clustr = true_cls - 1,
+       sim_truth  = Y_mat_complete,
+       sim_data   = Y_mat_obs,
+       RR_mat     = RR_mat,
+       c_mat      = c_mat,
+       Sigma_arr  = Sigma_arr,
+       mu_mat     = mu_mat)
+}
+
 #' Simulate data — Scenario 4 (fixed atoms, MCAR missingness)
 #'
 #' Same atoms as \code{\link{gen_data_S3}}, but missingness is completely
