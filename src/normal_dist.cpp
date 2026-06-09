@@ -24,6 +24,18 @@ double log_dmvn_both_mat_1_obs( const arma::colvec & x,
   return -0.5 * ( d * std::log(2.0 * arma::datum::pi) + log_det_Sigma + quad );
 }
 
+// [[Rcpp::export]]
+double log_dmvn_mat_1_obs(const arma::colvec & x,
+                          const arma::colvec & mu,
+                          const arma::mat    & Sigma) {
+  double d = x.n_elem;
+  arma::colvec z = x - mu;
+  double log_det_Sigma = arma::log_det_sympd(Sigma);
+  arma::colvec sol = arma::solve( Sigma, z, arma::solve_opts::likely_sympd);
+  double quad = arma::as_scalar(z.t() * sol);
+  return -0.5 * (d * std::log(2.0 * arma::datum::pi) + log_det_Sigma + quad);
+}
+
 //' Sample from a multivariate Normal distribution
 //'
 //' Draws \code{n} independent samples from \eqn{\mathcal{N}(\mu, \Sigma)}

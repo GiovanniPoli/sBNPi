@@ -11,6 +11,38 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// logCPO
+arma::vec logCPO(const Rcpp::List& CHAIN, const arma::mat& data, const arma::ivec& group, const int L, bool alpha_const, double alpha);
+RcppExport SEXP _sBNPi_logCPO(SEXP CHAINSEXP, SEXP dataSEXP, SEXP groupSEXP, SEXP LSEXP, SEXP alpha_constSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type CHAIN(CHAINSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< const arma::ivec& >::type group(groupSEXP);
+    Rcpp::traits::input_parameter< const int >::type L(LSEXP);
+    Rcpp::traits::input_parameter< bool >::type alpha_const(alpha_constSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(logCPO(CHAIN, data, group, L, alpha_const, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// logPML
+double logPML(const Rcpp::List& CHAIN, const arma::mat& data, const arma::ivec& group, const int L, bool alpha_const, double alpha);
+RcppExport SEXP _sBNPi_logPML(SEXP CHAINSEXP, SEXP dataSEXP, SEXP groupSEXP, SEXP LSEXP, SEXP alpha_constSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type CHAIN(CHAINSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< const arma::ivec& >::type group(groupSEXP);
+    Rcpp::traits::input_parameter< const int >::type L(LSEXP);
+    Rcpp::traits::input_parameter< bool >::type alpha_const(alpha_constSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(logPML(CHAIN, data, group, L, alpha_const, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sBNPi
 Rcpp::List sBNPi(const arma::mat& data, const arma::ivec& group, const double a0, const double b0, const arma::ivec& c0, const double& alpha0, const arma::mat& Sigma0, const arma::vec& mu0, const double kappa0, const double nu0, const double gamma0, const double eta0, const int L, const unsigned int sample, const unsigned int burn, const unsigned int thinning, const std::string cluster_init, const Rcpp::Nullable<arma::ivec> allocation_init, const int approx_tilted_gamma, const int maxiter_tilted_gamma);
 RcppExport SEXP _sBNPi_sBNPi(SEXP dataSEXP, SEXP groupSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP c0SEXP, SEXP alpha0SEXP, SEXP Sigma0SEXP, SEXP mu0SEXP, SEXP kappa0SEXP, SEXP nu0SEXP, SEXP gamma0SEXP, SEXP eta0SEXP, SEXP LSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP cluster_initSEXP, SEXP allocation_initSEXP, SEXP approx_tilted_gammaSEXP, SEXP maxiter_tilted_gammaSEXP) {
@@ -82,6 +114,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// log_dmvn_mat_1_obs
+double log_dmvn_mat_1_obs(const arma::colvec& x, const arma::colvec& mu, const arma::mat& Sigma);
+RcppExport SEXP _sBNPi_log_dmvn_mat_1_obs(SEXP xSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Sigma(SigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(log_dmvn_mat_1_obs(x, mu, Sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rmvnorm
 arma::mat rmvnorm(const int n, const arma::colvec& mu, const arma::mat& sigma);
 RcppExport SEXP _sBNPi_rmvnorm(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
@@ -125,9 +170,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_sBNPi_logCPO", (DL_FUNC) &_sBNPi_logCPO, 6},
+    {"_sBNPi_logPML", (DL_FUNC) &_sBNPi_logPML, 6},
     {"_sBNPi_sBNPi", (DL_FUNC) &_sBNPi_sBNPi, 20},
     {"_sBNPi_sBNPi_alpha", (DL_FUNC) &_sBNPi_sBNPi_alpha, 19},
     {"_sBNPi_rmvbern", (DL_FUNC) &_sBNPi_rmvbern, 2},
+    {"_sBNPi_log_dmvn_mat_1_obs", (DL_FUNC) &_sBNPi_log_dmvn_mat_1_obs, 3},
     {"_sBNPi_rmvnorm", (DL_FUNC) &_sBNPi_rmvnorm, 3},
     {"_sBNPi_rwish", (DL_FUNC) &_sBNPi_rwish, 3},
     {"_sBNPi_rniw", (DL_FUNC) &_sBNPi_rniw, 5},
