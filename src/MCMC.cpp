@@ -90,12 +90,13 @@
 //' # Run a short MCMC (small sample/burn for illustration only)
 //' post <- sBNPi(data     = Y,
 //'               group    = group,
-//'               a0       = 1,    b0    = 1,
+//'               a0       = 1,     b0    = 1,
 //'               c0       = c0,   alpha0 = alpha0,
 //'               Sigma0   = Sigma0, mu0  = mu0,
 //'               kappa0   = kappa0, nu0  = nu0,
 //'               gamma0   = 1,    eta0  = 1,
 //'               L        = 10,
+//'               logPML   = TRUE,
 //'               sample   = 1000,  burn  = 1000, thinning = 10)
 //'
 //' }
