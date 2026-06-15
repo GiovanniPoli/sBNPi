@@ -37,9 +37,9 @@
 //'
 //' @export
 // [[Rcpp::export]]
-arma::vec logCPO( const Rcpp::List & CHAIN, const arma::mat  & data,
-                 const arma::ivec & group, const int L,
-                 bool  alpha_const = false, double alpha = -1.0 ){
+arma::vec logCPO( const Rcpp::List & CHAIN,  const arma::mat  & data,
+                  const arma::ivec & group,  const int L,
+                  bool  alpha_const = false, double alpha = -1.0 ){
 
   int S  = CHAIN.size();
   int NN = data.n_rows;
@@ -156,10 +156,8 @@ arma::vec logCPO( const Rcpp::List & CHAIN, const arma::mat  & data,
 //' @export
 // [[Rcpp::export]]
 double logPML( const Rcpp::List & CHAIN, const arma::mat  & data,
-                  const arma::ivec & group, const int L,
-                  bool  alpha_const = false, double alpha = -1.0 ){
-
+               const arma::ivec & group, const int L,
+               bool  alpha_const = false, double alpha = -1.0 ){
   arma::vec log_cpo = logCPO( CHAIN, data, group, L, alpha_const, alpha );
   return  arma::sum(log_cpo);
 }
-

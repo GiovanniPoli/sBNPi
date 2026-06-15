@@ -44,8 +44,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sBNPi
-Rcpp::List sBNPi(const arma::mat& data, const arma::ivec& group, const double a0, const double b0, const arma::ivec& c0, const double& alpha0, const arma::mat& Sigma0, const arma::vec& mu0, const double kappa0, const double nu0, const double gamma0, const double eta0, const int L, const unsigned int sample, const unsigned int burn, const unsigned int thinning, const std::string cluster_init, const Rcpp::Nullable<arma::ivec> allocation_init, const int approx_tilted_gamma, const int maxiter_tilted_gamma);
-RcppExport SEXP _sBNPi_sBNPi(SEXP dataSEXP, SEXP groupSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP c0SEXP, SEXP alpha0SEXP, SEXP Sigma0SEXP, SEXP mu0SEXP, SEXP kappa0SEXP, SEXP nu0SEXP, SEXP gamma0SEXP, SEXP eta0SEXP, SEXP LSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP cluster_initSEXP, SEXP allocation_initSEXP, SEXP approx_tilted_gammaSEXP, SEXP maxiter_tilted_gammaSEXP) {
+Rcpp::List sBNPi(const arma::mat& data, const arma::ivec& group, const double a0, const double b0, const arma::ivec& c0, const double& alpha0, const arma::mat& Sigma0, const arma::vec& mu0, const double kappa0, const double nu0, const double gamma0, const double eta0, const int L, const bool logPML, const unsigned int sample, const unsigned int burn, const unsigned int thinning, const std::string cluster_init, const Rcpp::Nullable<arma::ivec> allocation_init, const int approx_tilted_gamma, const int maxiter_tilted_gamma);
+RcppExport SEXP _sBNPi_sBNPi(SEXP dataSEXP, SEXP groupSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP c0SEXP, SEXP alpha0SEXP, SEXP Sigma0SEXP, SEXP mu0SEXP, SEXP kappa0SEXP, SEXP nu0SEXP, SEXP gamma0SEXP, SEXP eta0SEXP, SEXP LSEXP, SEXP logPMLSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP cluster_initSEXP, SEXP allocation_initSEXP, SEXP approx_tilted_gammaSEXP, SEXP maxiter_tilted_gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -62,6 +62,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type gamma0(gamma0SEXP);
     Rcpp::traits::input_parameter< const double >::type eta0(eta0SEXP);
     Rcpp::traits::input_parameter< const int >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const bool >::type logPML(logPMLSEXP);
     Rcpp::traits::input_parameter< const unsigned int >::type sample(sampleSEXP);
     Rcpp::traits::input_parameter< const unsigned int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< const unsigned int >::type thinning(thinningSEXP);
@@ -69,7 +70,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::Nullable<arma::ivec> >::type allocation_init(allocation_initSEXP);
     Rcpp::traits::input_parameter< const int >::type approx_tilted_gamma(approx_tilted_gammaSEXP);
     Rcpp::traits::input_parameter< const int >::type maxiter_tilted_gamma(maxiter_tilted_gammaSEXP);
-    rcpp_result_gen = Rcpp::wrap(sBNPi(data, group, a0, b0, c0, alpha0, Sigma0, mu0, kappa0, nu0, gamma0, eta0, L, sample, burn, thinning, cluster_init, allocation_init, approx_tilted_gamma, maxiter_tilted_gamma));
+    rcpp_result_gen = Rcpp::wrap(sBNPi(data, group, a0, b0, c0, alpha0, Sigma0, mu0, kappa0, nu0, gamma0, eta0, L, logPML, sample, burn, thinning, cluster_init, allocation_init, approx_tilted_gamma, maxiter_tilted_gamma));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -172,7 +173,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_sBNPi_logCPO", (DL_FUNC) &_sBNPi_logCPO, 6},
     {"_sBNPi_logPML", (DL_FUNC) &_sBNPi_logPML, 6},
-    {"_sBNPi_sBNPi", (DL_FUNC) &_sBNPi_sBNPi, 20},
+    {"_sBNPi_sBNPi", (DL_FUNC) &_sBNPi_sBNPi, 21},
     {"_sBNPi_sBNPi_alpha", (DL_FUNC) &_sBNPi_sBNPi_alpha, 19},
     {"_sBNPi_rmvbern", (DL_FUNC) &_sBNPi_rmvbern, 2},
     {"_sBNPi_log_dmvn_mat_1_obs", (DL_FUNC) &_sBNPi_log_dmvn_mat_1_obs, 3},

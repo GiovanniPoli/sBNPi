@@ -18,6 +18,7 @@ sBNPi(
   gamma0,
   eta0,
   L = 10L,
+  logPML = FALSE,
   sample = 1000L,
   burn = 0L,
   thinning = 1L,

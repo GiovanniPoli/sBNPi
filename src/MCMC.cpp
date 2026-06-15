@@ -13,6 +13,8 @@
 #include "dirichlet_dist.h"
 #include "tilted_gamma_dist.h"
 #include "wrapper.h"
+#include "hamming_dist.h"
+#include "normal_dist.h"
 
 //' Hierarchical BNP imputation via MCMC
 //'
@@ -108,6 +110,7 @@ Rcpp::List sBNPi( const arma::mat  & data,
                   const double kappa0,         const double nu0,
                   const double gamma0, const double eta0, // b0 in Snigdha Das, Yabo Niu, Yang Ni, Bani K. Mallick, Debdeep Pati (2025).
                   const int L = 10,
+                  const bool logPML = false,
                   const unsigned int sample = 1000, const unsigned int burn = 0, const unsigned int thinning = 1,
                   const std::string cluster_init = "random",
                   const Rcpp::Nullable<arma::ivec> allocation_init = R_NilValue,
@@ -236,8 +239,17 @@ Rcpp::List sBNPi( const arma::mat  & data,
   double sumHD ;
   arma::mat Ck_rep ;
 
+  arma::vec inv_cpo_sum(NN, arma::fill::zeros);
+  arma::vec log_comp(L);
+  double lhm_sl ;
+  double lqN_sl ;
+  double loglik_is ;
+  double m ;
+
   // MCMC Algorithm
-  Rcpp::List return_list(sample);
+  Rcpp::List   chain_list(sample);
+  Rcpp::List   return_list;
+
   arma::rowvec Pisum  ; // somme per colonna
   arma::mat    Pi_out ;
   const unsigned int S = burn + thinning * sample;
@@ -272,7 +284,7 @@ Rcpp::List sBNPi( const arma::mat  & data,
       // mapping with idex
       j    = group(ii);
       r_i  = arma::conv_to<arma::ivec>::from( RR.row(ii).t() );;
-      y_i  = augY.row(ii).t();
+      y_i  = augY.row(ii).as_col();
       Pi_j = Pi.col(j);
       int & z_ji = Z(ii) ;
       // Call update
@@ -296,8 +308,8 @@ Rcpp::List sBNPi( const arma::mat  & data,
       arma::mat RR_submat = RR.rows(idx_l);
 
       update_phi( Yc_submat, RR_submat,
-                   c_it, mu_it, Sigma_it, SigmaInv_it,
-                   alpha, c0, alpha0, Sigma0Inv, Sigma0, mu0, nu0, kappa0);
+                  c_it, mu_it, Sigma_it, SigmaInv_it,
+                  alpha, c0, alpha0, Sigma0Inv, Sigma0, mu0, nu0, kappa0);
 
       Ck_rep  = arma::conv_to<arma::mat>::from(arma::repmat(c_it.t(), RR_submat.n_rows, 1 ));
       sumHD  += arma::accu(arma::abs(Ck_rep-RR_submat)) ;
@@ -338,20 +350,77 @@ Rcpp::List sBNPi( const arma::mat  & data,
         }
       }
 
-      return_list[ss] = Rcpp::List::create(
+      chain_list[ss] = Rcpp::List::create(
         Rcpp::Named("Imputation") = augY,
         Rcpp::Named("Z")          = Z,
         Rcpp::Named("Phi")        = wrap_param_cluster(PHI),
         Rcpp::Named("Pi")         = Pi_out,
         Rcpp::Named("Beta")       = Beta,
-        // Rcpp::Named("U")          = U,
-        // Rcpp::Named("T")          = T,
         Rcpp::Named("alpha")      = alpha);
       ss += 1 ;
+
+      if( logPML ){
+        for ( ii  = 0 ; ii < NN; ++ii) {
+          y_i  = data.row(ii).as_col();
+          r_i  = arma::conv_to<arma::ivec>::from( RR.row(ii).t() );
+          j   = group(ii); // needed for pi_{j,l}
+
+          arma::uvec idx_obs = arma::find_finite(y_i);
+
+          for(int l = 0; l < L; ++l){
+            param_cluster &  par_it      = PHI[l];
+            arma::ivec    &  c_it        = par_it.c ;
+            arma::vec     &  mu_it       = par_it.mu ;
+            arma::mat     &  Sigma_it    = par_it.Sigma;
+            arma::mat     &  SigmaInv_it = par_it.SigmaInv;
+
+            arma::colvec  y_i_r          = y_i(idx_obs) ;
+            arma::colvec  mu_it_r        = mu_it( idx_obs ) ;
+            arma::mat  Sigma_it_r        = Sigma_it.submat( idx_obs, idx_obs ) ;
+            arma::mat  SigmaInv_it_r     = SigmaInv_it.submat( idx_obs, idx_obs ) ;
+
+            lhm_sl = log_hamming_1_obs( r_i, c_it, alpha);
+            lqN_sl = log_dmvn_both_mat_1_obs( y_i_r, mu_it_r, SigmaInv_it_r, Sigma_it_r );
+            log_comp(l) = std::log(Pi(l, j)) + lhm_sl + lqN_sl;
+          }
+          m                = log_comp.max();
+          loglik_is        = m + std::log(arma::sum(arma::exp(log_comp - m)));;
+          inv_cpo_sum(ii) += std::exp(-loglik_is);
+        }
+      }
     }
   }
   catIter(S, S, t0) ;
+
+  return_list = Rcpp::List::create(
+      Rcpp::Named("chain")   = chain_list,
+      Rcpp::Named("prior")    = Rcpp::List::create(
+        Rcpp::Named("a0")     = a0,
+        Rcpp::Named("b0")     = b0,
+        Rcpp::Named("c0")     = c0,
+        Rcpp::Named("alpha0") = alpha0,
+        Rcpp::Named("Sigma0") = Sigma0,
+        Rcpp::Named("mu0")    = mu0,
+        Rcpp::Named("kappa0") = kappa0,
+        Rcpp::Named("nu0")    = nu0,
+        Rcpp::Named("gamma0") = gamma0,
+        Rcpp::Named("eta0")   = eta0 ),
+      Rcpp::Named("MCMC_settings") = Rcpp::List::create(
+        Rcpp::Named("L")                    = L,
+        Rcpp::Named("sample")               = sample,
+        Rcpp::Named("burn")                 = burn,
+        Rcpp::Named("thinning")             = thinning,
+        Rcpp::Named("cluster_init")         = cluster_init,
+        Rcpp::Named("approx_tilted_gamma")  = approx_tilted_gamma,
+        Rcpp::Named("maxiter_tilted_gamma") = maxiter_tilted_gamma ));
+
+  if( logPML ){
+    arma::vec log_cpo     = - arma::log(inv_cpo_sum / S);
+    return_list["logCPO"] = log_cpo ;
+    return_list["logPML"] = arma::sum( log_cpo ) ;
+  }
   return return_list;
+
 }
 
 //' Hierarchical BNP imputation via MCMC with fixed alpha

@@ -152,8 +152,8 @@ logPML <- function(CHAIN, data, group, L, alpha_const = FALSE, alpha = -1.0) {
 #' }
 #'
 #' @export
-sBNPi <- function(data, group, a0, b0, c0, alpha0, Sigma0, mu0, kappa0, nu0, gamma0, eta0, L = 10L, sample = 1000L, burn = 0L, thinning = 1L, cluster_init = "random", allocation_init = NULL, approx_tilted_gamma = 1L, maxiter_tilted_gamma = 1e3L) {
-    .Call(`_sBNPi_sBNPi`, data, group, a0, b0, c0, alpha0, Sigma0, mu0, kappa0, nu0, gamma0, eta0, L, sample, burn, thinning, cluster_init, allocation_init, approx_tilted_gamma, maxiter_tilted_gamma)
+sBNPi <- function(data, group, a0, b0, c0, alpha0, Sigma0, mu0, kappa0, nu0, gamma0, eta0, L = 10L, logPML = FALSE, sample = 1000L, burn = 0L, thinning = 1L, cluster_init = "random", allocation_init = NULL, approx_tilted_gamma = 1L, maxiter_tilted_gamma = 1e3L) {
+    .Call(`_sBNPi_sBNPi`, data, group, a0, b0, c0, alpha0, Sigma0, mu0, kappa0, nu0, gamma0, eta0, L, logPML, sample, burn, thinning, cluster_init, allocation_init, approx_tilted_gamma, maxiter_tilted_gamma)
 }
 
 #' Hierarchical BNP imputation via MCMC with fixed alpha
