@@ -373,19 +373,17 @@ Rcpp::List sBNPi( const arma::mat  & data,
             arma::ivec    &  c_it        = par_it.c ;
             arma::vec     &  mu_it       = par_it.mu ;
             arma::mat     &  Sigma_it    = par_it.Sigma;
-            arma::mat     &  SigmaInv_it = par_it.SigmaInv;
 
             arma::colvec  y_i_r          = y_i(idx_obs) ;
             arma::colvec  mu_it_r        = mu_it( idx_obs ) ;
             arma::mat  Sigma_it_r        = Sigma_it.submat( idx_obs, idx_obs ) ;
-            arma::mat  SigmaInv_it_r     = SigmaInv_it.submat( idx_obs, idx_obs ) ;
 
             lhm_sl = log_hamming_1_obs( r_i, c_it, alpha);
-            lqN_sl = log_dmvn_both_mat_1_obs( y_i_r, mu_it_r, SigmaInv_it_r, Sigma_it_r );
+            lqN_sl = log_dmvn_mat_1_obs(y_i_r, mu_it_r, Sigma_it_r);
             log_comp(l) = std::log(Pi(l, j)) + lhm_sl + lqN_sl;
           }
           m                = log_comp.max();
-          loglik_is        = m + std::log(arma::sum(arma::exp(log_comp - m)));;
+          loglik_is        = m + std::log(arma::sum(arma::exp(log_comp - m)));
           inv_cpo_sum(ii) += std::exp(-loglik_is);
         }
       }
@@ -416,7 +414,7 @@ Rcpp::List sBNPi( const arma::mat  & data,
         Rcpp::Named("maxiter_tilted_gamma") = maxiter_tilted_gamma ));
 
   if( logPML ){
-    arma::vec log_cpo     = - arma::log(inv_cpo_sum / S);
+    arma::vec log_cpo     = - arma::log(inv_cpo_sum / sample);
     return_list["logCPO"] = log_cpo ;
     return_list["logPML"] = arma::sum( log_cpo ) ;
   }
