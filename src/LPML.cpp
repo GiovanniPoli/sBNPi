@@ -93,10 +93,10 @@ arma::vec logCPO( const Rcpp::List & CHAIN,  const arma::mat  & data,
 
       yi      = data.row(i).as_col();
       idx_obs = arma::find_finite(yi);
-      yobs_i  = yi.elem(idx_obs);
+      yobs_i  = yi(idx_obs);
 
       r_i = arma::ivec(q, arma::fill::zeros);
-      r_i.elem(idx_obs).ones();
+      r_i(idx_obs).ones();
 
       for(int l = 0; l < L; ++l){
         Rcpp::List Phi_l = Rcpp::as<Rcpp::List>(Phi_s[l]);
@@ -105,7 +105,7 @@ arma::vec logCPO( const Rcpp::List & CHAIN,  const arma::mat  & data,
         c_l     = Rcpp::as<arma::ivec>(Phi_l["c"]);
 
         Sigma_obs_l = Sigma_l.submat(idx_obs, idx_obs);
-        mu_obs_l    = mu_l.elem(idx_obs);
+        mu_obs_l    = mu_l(idx_obs);
 
         lhm_sl = log_hamming_1_obs(r_i, c_l, alpha);
         lqN_sl = log_dmvn_mat_1_obs(yobs_i, mu_obs_l, Sigma_obs_l);
@@ -114,7 +114,7 @@ arma::vec logCPO( const Rcpp::List & CHAIN,  const arma::mat  & data,
       }
 
       m               = log_comp.max();
-      loglik_is       = m + std::log(arma::sum(arma::exp(log_comp - m)));;
+      loglik_is       = m + std::log(arma::sum(arma::exp(log_comp - m)));
 
       inv_cpo_sum(i) += std::exp(-loglik_is);
     }
